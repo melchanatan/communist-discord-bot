@@ -1,7 +1,21 @@
 const Discord = require("discord.js")
+var admin = require("firebase-admin")
+var serviceAccount = require("./communist-discord-bot.json")
 require("dotenv").config()
 
 const generateImage = require("./generateImage")
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://communist-discord-bot-337007-default-rtdb.asia-southeast1.firebasedatabase.app/"
+});
+
+var db = admin.database();
+var ref = db.ref("members");
+ref.once("value", function(snapshot) {
+  console.log(snapshot.val());
+});
+//const usersRef = ref.child("members");
 
 const client = new Discord.Client({
     intents: [
@@ -17,8 +31,20 @@ client.on("ready", () => {
 })
 
 client.on("messageCreate", (message) => {
-    if (message.content == "!pin") {
-        pinnedChannelId = message.channelId
+    var sp = message.content.split(" ")
+    if (sp[0] == "!set" && sp[1] != null) {
+        //message.channel.send(message.author.username)
+        ref.child(String(message.author.id)).set({
+            name: String(message.author.username),
+            level: sp[1]
+        })
+    }
+    if (sp[0] == "!level") {
+        //message.channel.send(String(message.author.id));
+        ref.child(String(message.author.id)).child("level").once("value", function(snapshot) {
+            message.channel.send(snapshot.val())
+        })
+        
     }
 })
 
