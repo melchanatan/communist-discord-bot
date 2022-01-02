@@ -1,13 +1,13 @@
-const setLevel = (ref, message, level) => {
-  ref.child(String(message.guild.id)).child(String(message.author.id)).set({
-    name: String(message.author.username),
+const setLevel = (ref, interaction, level) => {
+  ref.child(String(interaction.guild.id)).child(String(interaction.user.id)).set({
+    name: String(interaction.user.username),
     level: level
   })
 }
 
-const getLevel = async (ref, message) => {
-  ref.child(String(message.guild.id)).child(String(message.author.id)).child("level").once("value", function(snapshot) {
-    if (snapshot.val() != null) message.reply(String(snapshot.val()))
+const getLevel = async (ref, interaction) => {
+  ref.child(String(interaction.guild.id)).child(String(interaction.user.id)).child("level").once("value", function(snapshot) {
+    if (snapshot.val() != null) interaction.reply(String(snapshot.val()))
   })
 }
 

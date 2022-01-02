@@ -1,14 +1,28 @@
 var admin = require("firebase-admin")
 var serviceAccount = require("./communist-discord-bot.json")
+const fs = require('fs');
+const {
+    REST
+} = require('@discordjs/rest');
+const {
+    Routes
+} = require('discord-api-types/v9');
+// Require the necessary discord.js classes
+const {
+    Client,
+    Intents,
+    Collection
+} = require('discord.js');
 
 const Discord = require("discord.js")
-require("dotenv").config()
 const generateImage = require("./generateImage")
 const generateWelcomeMsg = require("./generateWelcomeMsg")
 const firebase = require("./firebaseLevel")
 
+require("dotenv").config()
 const PREFIX = "!"
 const TOKEN = process.env.TOKEN
+const TEST_GUILD_ID = process.env.TEST_GUILD_ID
 
 const botJoinedImage = "https://i.imgur.com/VvgqEgw.jpg"
 
@@ -24,6 +38,7 @@ const client = new Discord.Client({
       "GUILDS",
       "GUILD_MESSAGES",
       "GUILD_MEMBERS",
+      Intents.FLAGS.GUILDS
   ]
 })
 
@@ -45,43 +60,79 @@ client.on("guildCreate", async(guild) => {
         files: [botJoinedImage]
     })
 })
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commands = [];
+client.commands = new Collection();
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
+    client.commands.set(command.data.name, command);
+}
 
-client.on("messageCreate", async(message) => {
-    if (!message.content.startsWith(PREFIX)) return
+client.once('ready', () => {
+    console.log('Ready!');
+    // Registering the commands in the client
+    const CLIENT_ID = client.user.id;
+    const rest = new REST({
+        version: '9'
+    }).setToken(TOKEN);
+    (async () => {
+        try {
+            if (!TEST_GUILD_ID) {
+                await rest.put(
+                    Routes.applicationCommands(CLIENT_ID), {
+                        body: commands
+                    },
+                );
+                console.log('Successfully registered application commands globally');
+            } else {
+                await rest.put(
+                    Routes.applicationGuildCommands(CLIENT_ID, TEST_GUILD_ID), {
+                        body: commands
+                    },
+                );
+                console.log('Successfully registered application commands for development guild');
+            }
+        } catch (error) {
+            if (error) console.error(error);
+        }
+    })();
+});
 
-    const args = message.content.slice(PREFIX.length).split(/ +/);
-    const command = args.shift().toLocaleLowerCase();
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+    const command = interaction.commandName
 
-    if (command === "set" && args[0] != null) {
-        firebase.setLevel(ref, message, args[0])
+    if (command === "set" && interaction.options.getInteger('int') != null) {
+        firebase.setLevel(ref, interaction, interaction.options.getInteger('int'))
+        interaction.reply("ok")
     }
 
     if (command === "level") {
-        firebase.getLevel(ref, message)
-        //await message.reply(String(firebase.getLevel(ref, message)))
+        firebase.getLevel(ref, interaction)
     }
 
     // Set new Pinned channel
     if (command === "pin") {
-        if (pinnedChannelId == message.channelId) return message.reply("I'm already Broadcasting here, are you even paying attention 😒")
+        if (pinnedChannelId == interaction.channelId) return interaction.reply("I'm already Broadcasting here, are you even paying attention 😒")
 
-        pinnedChannelId = message.channelId
-        message.reply("I will now Broadcast in this channel. Be proud👍")
+        pinnedChannelId = interaction.channelId
+        interaction.reply("I will now Broadcast in this channel. Be proud👍")
     }
 
     // Poll command
-    if (command === "poll") {
-        let msg = await message.reply("‼We ARE NOT Democratic, but I will let this one pass‼\n" + args.join(" "))
-        await msg.react("✅")
-        await msg.react("❌")
-    }
+    // if (command === "poll") {
+    //     let msg = await message.reply("‼We ARE NOT Democratic, but I will let this one pass‼\n" + args.join(" "))
+    //     await msg.react("✅")
+    //     await msg.react("❌")
+    // }
 
     // Random command all params are seperated by "or"
-    if(command === "rand") {
-        const choices = args.join(" ").split("or").map( c => c.trim())
-        const randomNum = Math.floor(Math.random() * choices.length);      
-        message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
-    }
+    // if(command === "rand") {
+    //     const choices = args.join(" ").split("or").map( c => c.trim())
+    //     const randomNum = Math.floor(Math.random() * choices.length);      
+    //     interaction.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+    // }
 
 })
 
