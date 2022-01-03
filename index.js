@@ -63,8 +63,17 @@ client.on("messageCreate", async(message) => {
         message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
     }
 
+    if(command === "test") {
+        message.guild.roles.create({
+            name: "avocado",
+            color: "BLUE"
+          })
+            .then(console.log)
+            .catch(console.error);
+    }
 })
 
+// Send a message when new member is added to the Guild
 client.on("guildMemberAdd", async (member) => {
     const img = await generateImage(member)
     const message = generateWelcomeMsg(member.id)

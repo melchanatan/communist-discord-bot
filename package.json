@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/builders": "^0.11.0",
     "canvas": "^2.8.0",
+    "discord-slash-commands-client": "^1.2.2",
     "discord.js": "^13.5.0",
     "dotenv": "^10.0.0"
   }
