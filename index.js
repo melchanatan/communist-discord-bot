@@ -53,12 +53,12 @@ client.on("messageCreate", async(message) => {
     const command = args.shift().toLocaleLowerCase();
 
     if (command === "set" && args[0] != null) {
-        firebase.setLevel(ref, message, args[0])
+        firebase.setCredit(ref, message, args[0])
     }
 
-    if (command === "level") {
-        firebase.getLevel(ref, message)
-        //await message.reply(String(firebase.getLevel(ref, message)))
+    if (command === "Credit") {
+        firebase.getCredit(ref, message)
+        //await message.reply(String(firebase.getCredit(ref, message)))
     }
 
     // Set new Pinned channel
