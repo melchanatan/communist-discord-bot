@@ -1,18 +1,5 @@
 var admin = require("firebase-admin")
 var serviceAccount = require("./communist-discord-bot.json")
-const fs = require('fs');
-const {
-    REST
-} = require('@discordjs/rest');
-const {
-    Routes
-} = require('discord-api-types/v9');
-// Require the necessary discord.js classes
-const {
-    Client,
-    Intents,
-    Collection
-} = require('discord.js');
 
 const Discord = require("discord.js")
 const generateImage = require("./generateImage")
@@ -38,7 +25,6 @@ const client = new Discord.Client({
       "GUILDS",
       "GUILD_MESSAGES",
       "GUILD_MEMBERS",
-      Intents.FLAGS.GUILDS
   ]
 })
 
@@ -60,56 +46,21 @@ client.on("guildCreate", async(guild) => {
         files: [botJoinedImage]
     })
 })
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-const commands = [];
-client.commands = new Collection();
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    commands.push(command.data.toJSON());
-    client.commands.set(command.data.name, command);
-}
 
-client.once('ready', () => {
-    console.log('Ready!');
-    // Registering the commands in the client
-    const CLIENT_ID = client.user.id;
-    const rest = new REST({
-        version: '9'
-    }).setToken(TOKEN);
-    (async () => {
-        try {
-            if (!TEST_GUILD_ID) {
-                await rest.put(
-                    Routes.applicationCommands(CLIENT_ID), {
-                        body: commands
-                    },
-                );
-                console.log('Successfully registered application commands globally');
-            } else {
-                await rest.put(
-                    Routes.applicationGuildCommands(CLIENT_ID, TEST_GUILD_ID), {
-                        body: commands
-                    },
-                );
-                console.log('Successfully registered application commands for development guild');
-            }
-        } catch (error) {
-            if (error) console.error(error);
-        }
-    })();
-});
 
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-    const command = interaction.commandName
+client.on("messageCreate", async(message) => {
+    if (!message.content.startsWith(PREFIX)) return
 
-    if (command === "set" && interaction.options.getInteger('int') != null) {
-        firebase.setLevel(ref, interaction, interaction.options.getInteger('int'))
-        interaction.reply("ok")
+    const args = message.content.slice(PREFIX.length).split(/ +/);
+    const command = args.shift().toLocaleLowerCase();
+
+    if (command === "set" && args[0] != null) {
+        firebase.setCredit(ref, message, args[0])
     }
 
-    if (command === "level") {
-        firebase.getLevel(ref, interaction)
+    if (command === "credit") {
+        firebase.getCredit(ref, message)
+        //await message.reply(String(firebase.getCredit(ref, message)))
     }
 
     // Set new Pinned channel
@@ -121,18 +72,18 @@ client.on('interactionCreate', async interaction => {
     }
 
     // Poll command
-    // if (command === "poll") {
-    //     let msg = await message.reply("‼We ARE NOT Democratic, but I will let this one pass‼\n" + args.join(" "))
-    //     await msg.react("✅")
-    //     await msg.react("❌")
-    // }
+    if (command === "poll") {
+        let msg = await message.reply("‼We ARE NOT Democratic, but I will let this one pass‼\n" + args.join(" "))
+        await msg.react("✅")
+        await msg.react("❌")
+    }
 
     // Random command all params are seperated by "or"
-    // if(command === "rand") {
-    //     const choices = args.join(" ").split("or").map( c => c.trim())
-    //     const randomNum = Math.floor(Math.random() * choices.length);      
-    //     interaction.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
-    // }
+    if(command === "rand") {
+        const choices = args.join(" ").split("or").map( c => c.trim())
+        const randomNum = Math.floor(Math.random() * choices.length);      
+        interaction.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+    }
 
 })
 
