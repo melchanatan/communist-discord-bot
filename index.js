@@ -1,26 +1,52 @@
+var admin = require("firebase-admin")
+var serviceAccount = require("./communist-discord-bot.json")
+const fs = require('fs');
+const {
+    REST
+} = require('@discordjs/rest');
+const {
+    Routes
+} = require('discord-api-types/v9');
+// Require the necessary discord.js classes
+const {
+    Client,
+    Intents,
+    Collection
+} = require('discord.js');
+
 const Discord = require("discord.js")
-require("dotenv").config()
 const generateImage = require("./generateImage")
 const generateWelcomeMsg = require("./generateWelcomeMsg")
+const firebase = require("./firebaseLevel")
 
+require("dotenv").config()
 const PREFIX = "!"
 const TOKEN = process.env.TOKEN
+const TEST_GUILD_ID = process.env.TEST_GUILD_ID
 
 const botJoinedImage = "https://i.imgur.com/VvgqEgw.jpg"
 
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://communist-discord-bot-337007-default-rtdb.asia-southeast1.firebasedatabase.app/"
+});
+var db = admin.database();
+var ref = db.ref("members");
+
 const client = new Discord.Client({
-    intents: [
-        "GUILDS",
-        "GUILD_MESSAGES",
-        "GUILD_MEMBERS",
-    ]
+  intents: [
+      "GUILDS",
+      "GUILD_MESSAGES",
+      "GUILD_MEMBERS",
+      Intents.FLAGS.GUILDS
+  ]
 })
 
 let pinnedChannelId;
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}`)
 })
-
+        
 client.on("guildCreate", async(guild) => {
     // Set the pinned channel to the first text channel 
     const firstChannel = guild.channels.cache.find(
@@ -35,18 +61,64 @@ client.on("guildCreate", async(guild) => {
     })
 })
 
-client.on("messageCreate", async(message) => {
-    if (!message.content.startsWith(PREFIX)) return
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commands = [];
+client.commands = new Collection();
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
+    client.commands.set(command.data.name, command);
+}
 
-    const args = message.content.slice(PREFIX.length).split(/ +/);
-    const command = args.shift().toLocaleLowerCase();
+client.once('ready', () => {
+    console.log('Ready!');
+    // Registering the commands in the client
+    const CLIENT_ID = client.user.id;
+    const rest = new REST({
+        version: '9'
+    }).setToken(TOKEN);
+    (async () => {
+        try {
+            if (!TEST_GUILD_ID) {
+                await rest.put(
+                    Routes.applicationCommands(CLIENT_ID), {
+                        body: commands
+                    },
+                );
+                console.log('Successfully registered application commands globally');
+            } else {
+                await rest.put(
+                    Routes.applicationGuildCommands(CLIENT_ID, TEST_GUILD_ID), {
+                        body: commands
+                    },
+                );
+                console.log('Successfully registered application commands for development guild');
+            }
+        } catch (error) {
+            if (error) console.error(error);
+        }
+    })();
+});
+
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+    const command = interaction.commandName
+
+    if (command === "set" && interaction.options.getInteger('int') != null) {
+        firebase.setLevel(ref, interaction, interaction.options.getInteger('int'))
+        interaction.reply("ok")
+    }
+
+    if (command === "level") {
+        firebase.getLevel(ref, interaction)
+    }
 
     // Set new Pinned channel
     if (command === "pin") {
-        if (pinnedChannelId == message.channelId) return message.reply("I'm already Broadcasting here, are you even paying attention 😒")
+        if (pinnedChannelId == interaction.channelId) return interaction.reply("I'm already Broadcasting here, are you even paying attention 😒")
 
-        pinnedChannelId = message.channelId
-        message.reply("I will now Broadcast in this channel. Be proud👍")
+        pinnedChannelId = interaction.channelId
+        interaction.reply("I will now Broadcast in this channel. Be proud👍")
     }
 
     // Poll command
@@ -60,7 +132,7 @@ client.on("messageCreate", async(message) => {
     if(command === "rand") {
         const choices = args.join(" ").split("or").map( c => c.trim())
         const randomNum = Math.floor(Math.random() * choices.length);      
-        message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+        interaction.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
     }
 
     if(command === "test") {
