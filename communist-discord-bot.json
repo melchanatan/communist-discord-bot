@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "communist-discord-bot-337007",
+  "private_key_id": "d82034ec7bfb96e304685cf636b088d434401ff8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC6j/My9KUVegB3\n3PvBZZsQ1oqPF3DGqrPK0GhZgjkiDEIhGxX9h4KyCAuIzgzm34Fz21dzjT6TLYIx\n6VqAdifTlv9NU/rlbnJeCjd94LfO5VoQLKYVREEwODGJkxy+t6HntIiXsvcFzqon\niOGYwEE6iDDWZn3Y4WgakUjoPIKwbk/V4/UfCRGNIgtW3R8noIs9mqUy+FiOTyE0\nQ9nzXzXcQvigU/OU/oHUXaee4oGcMx9cPCQ/gW2N/F13EarSQ0Lr1HxcJta+IVXt\nht7Y2VcYRU6gyqqP+zdgbPtmGMpokY2Myh+LnZm4/L0qUUIAxi9K65ITsW3ahA8w\nmk5as34ZAgMBAAECggEAU1bSsUSQKlPhuanB3Nbiulbcdqdl/Zlrz4Hh23pMw2Tu\ndZN/802BmL33SRmisc/OKE8ndbr25RBDRMCVaSVfDSo6yfRl8++ur0upFlY4Rfg2\nj1sipgVjiYLQvkA1awzlCnifPAT6TGHRqO+At5fKi7ci+eO2/BdVRej4xKWjS+R3\n//egjsxetQ7EEoJLd00D0/36NMroODbNzMJgzMQMtwlTvvDbE0AWlpHIsOmznJws\nT9z979UL7H6JBBThBIAlFtEgJcSI0JKjgXk/dJjfpmpWDk5d6ZlxE1Ze502fTpQA\nMl2zMB69zG0EI44lEk14S2MND1RejKk74VIuPeaH8QKBgQDfnqGbEwIhbI7PDnUu\nAR/ZH5ccTgEPEegE+81TCBmQvuOpX6F1iNxRPBMV2ZlJaoAi79vENzv+3rwdAeGT\nobG1DWrvOdb/jjJ8ZDHnwIoGypOf7lYYCq/UYdNXkJWFUf2Eop7gfJJSNXA9w0NK\nuyjPOCdcMtw8OCmMyeQ8cYkRMwKBgQDVk6NN/lfB+sBqnee7eyTaQzbK32USi0bX\n6dUFwTjCpMmDBFsZ3vwnO5ATenu47QpREYdTA3QGQ23Qb+PCmifEuPeRnu47G6+T\nKSwaedvrv+DK/P0WYs/2fNaw5qWqNM4JxLn5yZjQ+4gn0GL9mVQcGsgxqP8Lo8Ep\n2dbHF+OLgwKBgBoVCoxn3yu+2blU2l4PS4Orp5hpkL4NPJ64L+6rVzAG088BlHd9\nCxV+iEtYIgTqIx/wEhYEyz6jBBXuDj2F8pBHjF1yxZzxHPpdRWTelDrOjgFtbyVG\nudNvxZLFDmuKcKNzxEwyu25TRVAu4j5pLg1dY1nhpMZxVodRVQmnxHD5AoGAAXC/\ndzUx7lL8nTt3ZqJL+1Tct72N9vQNhENFdoZ5FYb6/PE4lBIW7UTPkfIPh43Btg5C\nNWMekzQ9N1yp0pQrlH4S3V6PCMMFCh8K9xq/SvW+VGAkbNQ5xtXMtOC5WU6F3TcA\nchjT+QTZRDt5j3BLSu07UGptXey6zsdzVWBp3nUCgYAHOGzCjczhVvJKqpoBBUJX\nQeZXVxxnO5iAbTk/JBrXwYVTP47zAJMoDOUkgJsKnHTTQAiCQfc+BxuOyvR7iOv0\ncgI42Y1LquwFfyLTRu0LcuW6FrAXM62qoso5/UdGZLc9HczdUITvQtsgnxSZOX+7\ngRE0ArHBo+oQXMN/Q059Wg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-n0mzv@communist-discord-bot-337007.iam.gserviceaccount.com",
+  "client_id": "100905146604673010269",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-n0mzv%40communist-discord-bot-337007.iam.gserviceaccount.com"
+}

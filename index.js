@@ -2,6 +2,7 @@ const Discord = require("discord.js")
 require("dotenv").config()
 const generateImage = require("./generateImage")
 const generateWelcomeMsg = require("./generateWelcomeMsg")
+const addRole = require("./roleManager")
 
 const PREFIX = "!"
 const TOKEN = process.env.TOKEN
@@ -61,6 +62,29 @@ client.on("messageCreate", async(message) => {
         const choices = args.join(" ").split("or").map( c => c.trim())
         const randomNum = Math.floor(Math.random() * choices.length);      
         message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+    }
+
+    if (command === "test") {
+        roles.forEach( role => {
+            message.guild.roles.create(role)
+            .then(console.log)
+            .catch(console.error);
+        })
+        
+    }
+
+    // Delete all role
+    if (command === "del") {
+        message.guild.roles.cache.forEach(roles => {
+            roles.delete()
+            .then(deleted => console.log(`Deleted role ${deleted.name}`))
+            .catch(console.error);
+        });
+    }
+
+    if (command === "add") {
+        const index = parseInt(args.join())
+        addRole(index, message)
     }
 
 })
