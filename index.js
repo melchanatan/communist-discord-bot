@@ -1,8 +1,9 @@
 const Discord = require("discord.js")
 require("dotenv").config()
-const generateImage = require("./generateImage")
-const generateWelcomeMsg = require("./generateWelcomeMsg")
-const addRole = require("./roleManager")
+const generateImage = require("./src/generateImage")
+const generateWelcomeMsg = require("./src/generateWelcomeMsg")
+const addRole = require("./src/roleManager")
+const {updateCredit, fetchCredit, connectFirebase} = require("./src/creditManager")
 
 const PREFIX = "!"
 const TOKEN = process.env.TOKEN
@@ -18,7 +19,7 @@ const client = new Discord.Client({
 })
 
 let pinnedChannelId;
-client.on("ready", () => {
+client.on("ready", (guild) => {
     console.log(`Logged in as ${client.user.tag}`)
 })
 
@@ -34,6 +35,9 @@ client.on("guildCreate", async(guild) => {
         content: "All salute, I'm here to bless everyone with the Communist wind of peace💣",
         files: [botJoinedImage]
     })
+
+    // Connect to firebase 
+    connectFirebase(guild.id)
 })
 
 client.on("messageCreate", async(message) => {
@@ -64,15 +68,6 @@ client.on("messageCreate", async(message) => {
         message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
     }
 
-    if (command === "test") {
-        roles.forEach( role => {
-            message.guild.roles.create(role)
-            .then(console.log)
-            .catch(console.error);
-        })
-        
-    }
-
     // Delete all role
     if (command === "del") {
         message.guild.roles.cache.forEach(roles => {
@@ -85,6 +80,15 @@ client.on("messageCreate", async(message) => {
     if (command === "add") {
         const index = parseInt(args.join())
         addRole(index, message)
+    }
+
+    if (command === "test") {
+        if (updateCredit(message, 1400)) message.reply("done")
+        else message.reply("ow")
+    }
+
+    if (command === "con") {
+        connectFirebase(message.guildId)
     }
 
 })
