@@ -1,38 +1,28 @@
-var admin = require("firebase-admin")
-var serviceAccount = require("./communist-discord-bot.json")
-
 const Discord = require("discord.js")
-const generateImage = require("./generateImage")
-const generateWelcomeMsg = require("./generateWelcomeMsg")
-const firebase = require("./firebaseLevel")
-
 require("dotenv").config()
+const generateImage = require("./src/generateImage")
+const generateWelcomeMsg = require("./src/generateWelcomeMsg")
+const addRole = require("./src/roleManager")
+const {updateCredit, fetchCredit, connectFirebase} = require("./src/creditManager")
+
 const PREFIX = "!"
 const TOKEN = process.env.TOKEN
-const TEST_GUILD_ID = process.env.TEST_GUILD_ID
 
 const botJoinedImage = "https://i.imgur.com/VvgqEgw.jpg"
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://communist-discord-bot-337007-default-rtdb.asia-southeast1.firebasedatabase.app/"
-});
-var db = admin.database();
-var ref = db.ref("members");
-
 const client = new Discord.Client({
-  intents: [
-      "GUILDS",
-      "GUILD_MESSAGES",
-      "GUILD_MEMBERS",
-  ]
+    intents: [
+        "GUILDS",
+        "GUILD_MESSAGES",
+        "GUILD_MEMBERS",
+    ]
 })
 
 let pinnedChannelId;
-client.on("ready", () => {
+client.on("ready", (guild) => {
     console.log(`Logged in as ${client.user.tag}`)
 })
-        
+
 client.on("guildCreate", async(guild) => {
     // Set the pinned channel to the first text channel 
     const firstChannel = guild.channels.cache.find(
@@ -45,8 +35,10 @@ client.on("guildCreate", async(guild) => {
         content: "All salute, I'm here to bless everyone with the Communist wind of peace💣",
         files: [botJoinedImage]
     })
-})
 
+    // Connect to firebase 
+    connectFirebase(guild.id)
+})
 
 client.on("messageCreate", async(message) => {
     if (!message.content.startsWith(PREFIX)) return
@@ -54,21 +46,12 @@ client.on("messageCreate", async(message) => {
     const args = message.content.slice(PREFIX.length).split(/ +/);
     const command = args.shift().toLocaleLowerCase();
 
-    if (command === "set" && args[0] != null) {
-        firebase.setCredit(ref, message, args[0])
-    }
-
-    if (command === "credit") {
-        firebase.getCredit(ref, message)
-        //await message.reply(String(firebase.getCredit(ref, message)))
-    }
-
     // Set new Pinned channel
     if (command === "pin") {
-        if (pinnedChannelId == interaction.channelId) return interaction.reply("I'm already Broadcasting here, are you even paying attention 😒")
+        if (pinnedChannelId == message.channelId) return message.reply("I'm already Broadcasting here, are you even paying attention 😒")
 
-        pinnedChannelId = interaction.channelId
-        interaction.reply("I will now Broadcast in this channel. Be proud👍")
+        pinnedChannelId = message.channelId
+        message.reply("I will now Broadcast in this channel. Be proud👍")
     }
 
     // Poll command
@@ -82,7 +65,30 @@ client.on("messageCreate", async(message) => {
     if(command === "rand") {
         const choices = args.join(" ").split("or").map( c => c.trim())
         const randomNum = Math.floor(Math.random() * choices.length);      
-        interaction.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+        message.reply(`The Supreme Ruler had decided: ${choices[randomNum]} it is!`)
+    }
+
+    // Delete all role
+    if (command === "del") {
+        message.guild.roles.cache.forEach(roles => {
+            roles.delete()
+            .then(deleted => console.log(`Deleted role ${deleted.name}`))
+            .catch(console.error);
+        });
+    }
+
+    if (command === "add") {
+        const index = parseInt(args.join())
+        addRole(index, message)
+    }
+
+    if (command === "test") {
+        if (updateCredit(message, 1400)) message.reply("done")
+        else message.reply("ow")
+    }
+
+    if (command === "con") {
+        connectFirebase(message.guildId)
     }
 
 })
